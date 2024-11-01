@@ -2,15 +2,22 @@ import pygame
 import sys
 import random
 
+# Alusta pygame ja mixer
 pygame.init()
+pygame.mixer.init()  # Lisää tämä rivi
+
+# Lataa ääni
+syo_aani = pygame.mixer.Sound(r"C:\Users\toiva\Downloads\eat.mp3")
+kuole_aani = pygame.mixer.Sound(r"C:\Users\toiva\Downloads\die.mp3")
+pygame.mixer.music.load(r"C:\Users\toiva\Downloads\musiikki.mp3")
+pygame.mixer.music.set_volume(0.4)
+pygame.mixer.music.play(-1)
 
 SW, SH = 800, 800
-
-
 BLOCK_SIZE = 50
-FONT = pygame.font.SysFont("arial", BLOCK_SIZE*2)
+FONT = pygame.font.SysFont("arial", BLOCK_SIZE * 2)
 
-screen = pygame.display.set_mode((800, 800))
+screen = pygame.display.set_mode((SW, SH))
 pygame.display.set_caption("Snake")
 clock = pygame.time.Clock()
 
@@ -32,8 +39,9 @@ class Snake:
             if self.head.x not in range(0, SW) or self.head.y not in range(0, SH):
                 self.dead = True     
 
-
         if self.dead:
+            kuole_aani.play()
+            pygame.time.wait(2000)
             self.x, self.y = BLOCK_SIZE, BLOCK_SIZE
             self.xdir = 1
             self.ydir = 0
@@ -41,7 +49,6 @@ class Snake:
             self.body = [pygame.Rect(self.x - BLOCK_SIZE, self.y, BLOCK_SIZE, BLOCK_SIZE)]
             self.dead = False
             apple = Apple()
-
 
         self.body.append(self.head)
         for i in range(len(self.body)- 1):
@@ -52,8 +59,8 @@ class Snake:
 
 class Apple():
     def __init__(self):
-        self.x = int (random.randint(0,SW) / BLOCK_SIZE) * BLOCK_SIZE
-        self.y = int (random.randint(0,SH) / BLOCK_SIZE) * BLOCK_SIZE
+        self.x = int(random.randint(0, SW) / BLOCK_SIZE) * BLOCK_SIZE
+        self.y = int(random.randint(0, SH) / BLOCK_SIZE) * BLOCK_SIZE
         self.rect = pygame.Rect(self.x, self.y, BLOCK_SIZE, BLOCK_SIZE)
 
     def update(self):
@@ -68,14 +75,12 @@ def drawGrid():
 
 
 score = FONT.render("1", True, "white")
-score_rect = score.get_rect(center = (SW/2, SH/20))
+score_rect = score.get_rect(center=(SW/2, SH/20))
 
 drawGrid()
 
 snake = Snake()
-
 apple = Apple()
-
 
 while True:
     for event in pygame.event.get():
@@ -83,23 +88,20 @@ while True:
             pygame.quit()
             sys.exit()
         if(event.type == pygame.KEYDOWN):
-            if event.key == pygame.K_DOWN:
+            if event.key == pygame.K_DOWN or event.key == pygame.K_s:
                 snake.ydir = 1
                 snake.xdir = 0
-            elif event.key == pygame.K_UP:
+            elif event.key == pygame.K_UP or event.key == pygame.K_w:
                 snake.ydir = -1 
                 snake.xdir = 0
-            elif event.key == pygame.K_RIGHT:
+            elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                 snake.ydir = 0
                 snake.xdir = 1
-            elif event.key == pygame.K_LEFT:
+            elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
                 snake.ydir = 0
                 snake.xdir = -1                                    
 
     snake.update()   
-    
-
-
 
     screen.fill('black')         
     drawGrid()
@@ -107,19 +109,16 @@ while True:
 
     score = FONT.render(f"{len(snake.body) + 1}", True, "white")
 
-
-
-
     pygame.draw.rect(screen, "green", snake.head)        
     for square in snake.body:
         pygame.draw.rect(screen, "green", square)
 
     screen.blit(score, score_rect)        
 
-
     if snake.head.x == apple.x and snake.head.y == apple.y:
         snake.body.append(pygame.Rect(square.x, square.y, BLOCK_SIZE, BLOCK_SIZE))
-        apple = Apple()        
+        apple = Apple()
+        syo_aani.play()  # Soita ääni, kun käärme syö omenan
 
     pygame.display.update()
     clock.tick(10)
