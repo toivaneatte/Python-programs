@@ -4,7 +4,7 @@ import random
 
 # Alusta pygame ja mixer
 pygame.init()
-pygame.mixer.init()  # Lisää tämä rivi
+pygame.mixer.init() 
 
 # Lataa ääni
 syo_aani = pygame.mixer.Sound(r"C:\Users\toiva\Downloads\eat.mp3")
